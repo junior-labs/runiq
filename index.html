@@ -16,6 +16,7 @@
   <!-- html2canvas para exportação -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
+  <!-- Caminho relativo corrigido para garantir o carregamento do estilo -->
   <link rel="stylesheet" href="./css/style.css" />
 </head>
 <body>
@@ -23,27 +24,28 @@
   <!-- ═══════════════════════════════════════════
        TELA DE LOGIN / CONFIGURAÇÃO
   ═══════════════════════════════════════════ -->
-  <div id="screen-login" class="screen active">
+  <div id="screen-login" class="screen">
     <div class="login-wrap">
       <div class="login-logo">
         <span class="logo-run">Run</span><span class="logo-iq">IQ</span>
       </div>
       <p class="login-sub">Análise inteligente dos seus dados de corrida</p>
 
-      <div class="login-form">
+      <!-- Formulário estruturado para preenchimento de senhas do iOS/Chrome -->
+      <form class="login-form" id="login-form-container" onsubmit="return false;">
         <div class="field-group">
           <label for="input-athlete-id">Athlete ID</label>
-          <input type="text" id="input-athlete-id" placeholder="ex: i123456" />
-          <span class="field-hint">Encontre em intervals.icu → Settings → Profile</span>
+          <input type="text" id="input-athlete-id" name="username" autocomplete="username" placeholder="ex: 425054" />
+          <span class="field-hint">Seu número identificador do intervals.icu</span>
         </div>
 
         <div class="field-group">
           <label for="input-api-key">API Key</label>
-          <input type="password" id="input-api-key" placeholder="sua chave da API" />
+          <input type="password" id="input-api-key" name="password" autocomplete="current-password" placeholder="sua chave da API" />
           <span class="field-hint">Settings → API Settings → copiar a chave</span>
         </div>
 
-        <button class="btn-primary" id="btn-connect">
+        <button class="btn-primary" id="btn-connect" type="submit">
           <span>Conectar</span>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -51,9 +53,9 @@
         </button>
 
         <p class="login-note">
-          Suas credenciais ficam salvas apenas no seu navegador. Nunca saem do seu dispositivo.
+          Suas credenciais são guardadas no LocalStorage do seu próprio navegador de forma privada.
         </p>
-      </div>
+      </form>
     </div>
   </div>
 
