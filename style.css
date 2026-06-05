@@ -1,0 +1,558 @@
+/* ═══════════════════════════════════════════
+   RESET & VARIÁVEIS
+   ═══════════════════════════════════════════ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-main: #0a0a0c;
+  --bg-card: #121216;
+  --bg-input: #1a1a22;
+  --border-color: #22222a;
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
+  
+  --accent-primary: #3b82f6; /* Azul */
+  --status-green: #10b981;
+  --status-yellow: #f59e0b;
+  --status-orange: #f97316;
+  --status-red: #ef4444;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════════════════════════
+   ESTRUTURA DE TELAS & NAVEGAÇÃO
+   ═══════════════════════════════════════════ */
+.screen {
+  display: none;
+  min-height: 100vh;
+}
+.screen.active {
+  display: block;
+}
+
+/* Login */
+.screen-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.login-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 40px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 420px;
+}
+.login-logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 8px;
+}
+.logo-run { color: var(--text-main); }
+.logo-iq { color: var(--accent-primary); }
+.login-sub {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-bottom: 32px;
+}
+.field-group {
+  margin-bottom: 20px;
+}
+.field-group label {
+  display: block;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  color: var(--text-muted);
+}
+.field-group input {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  padding: 12px;
+  border-radius: 6px;
+  color: var(--text-main);
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+}
+.field-hint {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+/* Header Geral */
+.app-header {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 64px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.app-logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 20px;
+}
+.main-nav {
+  display: flex;
+  gap: 8px;
+}
+.nav-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 20px;
+  transition: all 0.2s;
+}
+.nav-btn:hover {
+  color: var(--text-main);
+}
+.nav-btn.active {
+  background: var(--bg-input);
+  color: var(--text-main);
+}
+.btn-icon {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 8px;
+}
+.btn-icon:hover { color: var(--text-main); }
+
+/* Conteúdo */
+.main-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+.content-section {
+  display: none;
+}
+.content-section.active {
+  display: block;
+}
+
+/* ═══════════════════════════════════════════
+   COMPONENTES & CARDS
+   ═══════════════════════════════════════════ */
+.athlete-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.athlete-name {
+  font-size: 20px;
+  font-weight: 700;
+  display: block;
+}
+.athlete-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.today-date {
+  font-family: 'DM Mono', monospace;
+  color: var(--text-muted);
+}
+
+/* Prontidão / Recovery Hero */
+.recovery-hero {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+  position: relative;
+}
+.recovery-score-wrap {
+  text-align: center;
+}
+.recovery-score {
+  font-family: 'Syne', sans-serif;
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 1;
+}
+.recovery-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+.recovery-status {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.recovery-advice {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* Grid de Métricas */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.metric-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+}
+.metric-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.metric-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.metric-value {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.metric-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.metric-trend, .metric-status {
+  font-size: 11px;
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+/* Wellness Row */
+.wellness-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.wellness-card {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+}
+.wellness-value {
+  font-family: 'DM Mono', monospace;
+  font-size: 18px;
+  font-weight: 600;
+}
+.wellness-name {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.wellness-delta {
+  margin-left: auto;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+}
+
+/* Estimativas de Corrida */
+.section-title {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-title-lg {
+  font-family: 'Syne', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+}
+.race-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.race-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+}
+.race-distance {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.race-time {
+  font-family: 'Syne', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  margin: 6px 0;
+}
+.race-pace {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Alertas */
+.alerts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.alert-item {
+  padding: 14px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.alert-item.red { background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.25); color: #fca5a5; }
+.alert-item.orange { background: rgba(249, 115, 22, 0.12); border: 1px solid rgba(249, 115, 22, 0.25); color: #fdbb2d; }
+.alert-item.yellow { background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.25); color: #fde047; }
+
+/* ═══════════════════════════════════════════
+   ÚLTIMO TREINO & TABELAS
+   ═══════════════════════════════════════════ */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+.workout-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+.workout-stat {
+  padding: 20px;
+  text-align: center;
+  border-right: 1px solid var(--border-color);
+}
+.workout-stat:last-child { border-right: none; }
+.ws-value {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+}
+.ws-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.splits-table-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+.splits-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.splits-table th, .splits-table td {
+  padding: 12px 20px;
+  font-size: 14px;
+}
+.splits-table th {
+  background: var(--bg-input);
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.splits-table tr { border-bottom: 1px solid var(--border-color); }
+.splits-table tr:last-child { border-bottom: none; }
+.splits-table td { font-family: 'DM Mono', monospace; }
+
+/* Gráficos */
+.chart-block {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.chart-title { font-weight: 600; font-size: 14px; }
+.chart-wrap { height: 300px; position: relative; }
+.chart-wrap--small { height: 200px; }
+
+/* Recordes Pessoais */
+.prs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+.pr-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+}
+.pr-distance { font-size: 14px; color: var(--text-muted); }
+.pr-pace { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; margin: 8px 0; }
+.pr-date { font-size: 11px; color: var(--text-muted); margin-bottom: 16px; }
+
+/* Botões */
+.btn-primary {
+  width: 100%;
+  background: var(--accent-primary);
+  color: #fff;
+  border: none;
+  padding: 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-export {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-export:hover { background: var(--bg-input); }
+.btn-export--small { padding: 6px 12px; font-size: 11px; margin: 0 auto; }
+
+/* ═══════════════════════════════════════════
+   MODAL & INTERFACES AUXILIARES
+   ═══════════════════════════════════════════ */
+.info-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  font-size: 11px;
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+.info-btn:hover { color: var(--text-main); border-color: var(--text-muted); }
+
+.modal {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100;
+}
+.modal.hidden { display: none; }
+.modal-backdrop {
+  position: absolute; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(4px);
+}
+.modal-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  width: 100%; max-width: 460px;
+  padding: 32px; position: relative;
+  z-index: 101;
+}
+.modal-close {
+  position: absolute; top: 16px; right: 16px;
+  background: transparent; border: none; color: var(--text-muted);
+  font-size: 16px; cursor: pointer;
+}
+.modal-body h4 { font-size: 12px; text-transform: uppercase; color: var(--text-muted); margin: 16px 0 6px 0; }
+.modal-body p { font-size: 14px; color: var(--text-main); line-height: 1.5; }
+
+.loading-overlay {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 60px 0;
+}
+.loading-overlay.hidden { display: none; }
+.loading-spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--accent-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Responsividade básica */
+@media (max-width: 768px) {
+  .app-header { flex-direction: column; height: auto; padding: 16px; gap: 12px; }
+  .workout-stats-grid { grid-template-columns: repeat(3, 1fr); }
+  .race-grid { grid-template-columns: 1fr; }
+  .wellness-row { flex-direction: column; }
+}
