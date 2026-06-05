@@ -34,7 +34,7 @@ const RunIQCharts = {
         plugins: { legend: { labels: { color: '#f3f4f6' } } }
       }
     ]);
-  },
+  });
 
   renderTrend(canvasId, labels, data, labelName, color) {
     this.destroyExisting(canvasId);
@@ -55,7 +55,7 @@ const RunIQCharts = {
         },
         plugins: { legend: { display: false } }
       }
-    ]);
+    });
   },
 
   renderZonesPie(canvasId, zoneTimesArray, zoneLabels) {
@@ -77,6 +77,6 @@ const RunIQCharts = {
         maintainAspectRatio: false,
         plugins: { legend: { position: 'right', labels: { color: '#f3f4f6' } } }
       }
-    ]);
+    });
   }
 };
