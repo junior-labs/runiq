@@ -1,12 +1,17 @@
 /**
- * Service isolado para chamadas de API do intervals.icu - Versão Corrigida
+ * IntervalsService — RunIQ
+ * 
+ * Todas as chamadas passam pelo Cloudflare Worker para resolver CORS.
+ * O Worker fica em: https://runiq-proxy.<seu-usuario>.workers.dev
  */
 class IntervalsService {
   constructor(athleteId, apiKey) {
-    // Tratamento rigoroso: remove qualquer letra ou caractere, deixando só os números do ID
-    this.athleteId = athleteId.replace(/\D/g, '');
-    this.apiKey = apiKey;
-    this.baseUrl = 'https://intervals.icu/api/v1';
+    // Mantém o ID exatamente como digitado (ex: i425054)
+    this.athleteId = athleteId.trim();
+    this.apiKey    = apiKey.trim();
+
+    // URL do seu Cloudflare Worker — atualizar após deploy
+    this.proxyBase = 'https://young-disk-1a13.junior-ins-ae.workers.dev/proxy';
   }
 
   getAuthHeader() {
@@ -14,40 +19,51 @@ class IntervalsService {
     return { 'Authorization': `Basic ${credentials}` };
   }
 
-  async fetchAthleteData() {
-    try {
-      const res = await fetch(`${this.baseUrl}/athlete/${this.athleteId}`, {
-        headers: this.getAuthHeader()
-      });
-      if (!res.ok) throw new Error('Falha ao buscar dados do atleta');
-      return await res.json();
-    } catch (err) {
-      console.error(err);
-      throw err;
+  async _get(path, params = {}) {
+    const qs = new URLSearchParams(params).toString();
+    const url = `${this.proxyBase}/${path}${qs ? '?' + qs : ''}`;
+
+    const res = await fetch(url, { headers: this.getAuthHeader() });
+
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(`Erro ${res.status} em /${path}: ${body}`);
     }
+
+    return res.json();
   }
 
-  async fetchActivities(oldestIso, newestIso) {
-    try {
-      const url = `${this.baseUrl}/athlete/${this.athleteId}/activities?oldest=${oldestIso}&newest=${newestIso}`;
-      const res = await fetch(url, { headers: this.getAuthHeader() });
-      if (!res.ok) throw new Error('Falha ao buscar atividades');
-      return await res.json();
-    } catch (err) {
-      console.error(err);
-      throw err;
-    }
+  // ── Endpoints ──────────────────────────────────────────
+
+  /** Dados do atleta: nome, vo2max, ftp, threshold_pace, zonas */
+  fetchAthleteData() {
+    return this._get(`athlete/${this.athleteId}`);
   }
 
-  async fetchWellness(oldestIso, newestIso) {
-    try {
-      const url = `${this.baseUrl}/athlete/${this.athleteId}/wellness?oldest=${oldestIso}&newest=${newestIso}`;
-      const res = await fetch(url, { headers: this.getAuthHeader() });
-      if (!res.ok) throw new Error('Falha ao buscar dados de wellness');
-      return await res.json();
-    } catch (err) {
-      console.error(err);
-      throw err;
-    }
+  /**
+   * Atividades num intervalo de datas
+   * @param {string} oldest  "YYYY-MM-DD"
+   * @param {string} newest  "YYYY-MM-DD"
+   */
+  fetchActivities(oldest, newest) {
+    return this._get(`athlete/${this.athleteId}/activities`, { oldest, newest });
+  }
+
+  /**
+   * Wellness (CTL/ATL/TSB/HRV/FC repouso/sono) num intervalo
+   * @param {string} oldest  "YYYY-MM-DD"
+   * @param {string} newest  "YYYY-MM-DD"
+   */
+  fetchWellness(oldest, newest) {
+    return this._get(`athlete/${this.athleteId}/wellness`, { oldest, newest });
+  }
+
+  /**
+   * Stream detalhado de uma atividade (pace/FC/potência por segmento)
+   * Usado para calcular Decoupling real
+   * @param {string|number} activityId
+   */
+  fetchActivityStreams(activityId) {
+    return this._get(`activity/${activityId}/streams`);
   }
 }
