@@ -1,5 +1,5 @@
 /**
- * Gerenciador de gráficos do RunIQ
+ * Gerenciador de gráficos do RunIQ - Versão Corrigida sem Erro de Sintaxe
  */
 const RunIQCharts = {
   instances: {},
