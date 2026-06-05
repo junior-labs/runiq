@@ -3,7 +3,7 @@
  */
 class IntervalsService {
   constructor(athleteId, apiKey) {
-    // Remove o 'i' caso o usuário digite ex: i123456, deixando apenas os números
+    // Tratamento rigoroso: remove qualquer letra ou caractere, deixando só os números do ID
     this.athleteId = athleteId.replace(/\D/g, '');
     this.apiKey = apiKey;
     this.baseUrl = 'https://intervals.icu/api/v1';
