@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RunIQ</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <!-- Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+  <!-- html2canvas para exportação -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════
+       TELA DE LOGIN / CONFIGURAÇÃO
+  ═══════════════════════════════════════════ -->
+  <div id="screen-login" class="screen active">
+    <div class="login-wrap">
+      <div class="login-logo">
+        <span class="logo-run">Run</span><span class="logo-iq">IQ</span>
+      </div>
+      <p class="login-sub">Análise inteligente dos seus dados de corrida</p>
+
+      <div class="login-form">
+        <div class="field-group">
+          <label for="input-athlete-id">Athlete ID</label>
+          <input type="text" id="input-athlete-id" placeholder="ex: i123456" />
+          <span class="field-hint">Encontre em intervals.icu → Settings → Profile</span>
+        </div>
+
+        <div class="field-group">
+          <label for="input-api-key">API Key</label>
+          <input type="password" id="input-api-key" placeholder="sua chave da API" />
+          <span class="field-hint">Settings → API Settings → copiar a chave</span>
+        </div>
+
+        <button class="btn-primary" id="btn-connect">
+          <span>Conectar</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <p class="login-note">
+          Suas credenciais ficam salvas apenas no seu navegador. Nunca saem do seu dispositivo.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       TELA PRINCIPAL — DASHBOARD
+  ═══════════════════════════════════════════ -->
+  <div id="screen-dashboard" class="screen">
+
+    <!-- HEADER -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="app-logo">
+          <span class="logo-run">Run</span><span class="logo-iq">IQ</span>
+        </div>
+      </div>
+      <div class="header-center">
+        <nav class="main-nav">
+          <button class="nav-btn active" data-section="hoje">Hoje</button>
+          <button class="nav-btn" data-section="treino">Último Treino</button>
+          <button class="nav-btn" data-section="evolucao">Evolução</button>
+          <button class="nav-btn" data-section="semana">Semana</button>
+          <button class="nav-btn" data-section="prs">PRs</button>
+        </nav>
+      </div>
+      <div class="header-right">
+        <button class="btn-icon" id="btn-refresh" title="Atualizar dados">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M1 9a8 8 0 1 0 1.5-4.7M1 4.3V9h4.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="btn-icon" id="btn-logout" title="Desconectar">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M12 12.5l3-3.5-3-3.5M15 9H7M7 3H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- LOADING STATE -->
+    <div id="loading-state" class="loading-overlay hidden">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Carregando seus dados…</p>
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="main-content">
+
+      <!-- ── SEÇÃO: HOJE ── -->
+      <section id="section-hoje" class="content-section active">
+
+        <!-- Athlete summary bar -->
+        <div class="athlete-bar">
+          <div class="athlete-info">
+            <span class="athlete-name" id="athlete-name">—</span>
+            <span class="athlete-meta" id="athlete-meta">—</span>
+          </div>
+          <div class="today-date" id="today-date">—</div>
+        </div>
+
+        <!-- Score de recuperação — card principal -->
+        <div class="recovery-hero" id="card-recovery" data-metric="recovery">
+          <div class="recovery-score-wrap">
+            <div class="recovery-score" id="recovery-score">—</div>
+            <div class="recovery-label">Prontidão</div>
+          </div>
+          <div class="recovery-detail">
+            <div class="recovery-status" id="recovery-status">—</div>
+            <div class="recovery-advice" id="recovery-advice">—</div>
+          </div>
+          <button class="info-btn" data-metric="recovery">?</button>
+        </div>
+
+        <!-- Grid de métricas de carga -->
+        <div class="metrics-grid">
+
+          <div class="metric-card" data-metric="ctl">
+            <div class="metric-header">
+              <span class="metric-icon">📈</span>
+              <span class="metric-name">CTL</span>
+              <button class="info-btn" data-metric="ctl">?</button>
+            </div>
+            <div class="metric-value" id="val-ctl">—</div>
+            <div class="metric-label">Condicionamento</div>
+            <div class="metric-trend" id="trend-ctl"></div>
+          </div>
+
+          <div class="metric-card" data-metric="atl">
+            <div class="metric-header">
+              <span class="metric-icon">🔋</span>
+              <span class="metric-name">ATL</span>
+              <button class="info-btn" data-metric="atl">?</button>
+            </div>
+            <div class="metric-value" id="val-atl">—</div>
+            <div class="metric-label">Fadiga</div>
+            <div class="metric-trend" id="trend-atl"></div>
+          </div>
+
+          <div class="metric-card metric-card--highlight" data-metric="tsb">
+            <div class="metric-header">
+              <span class="metric-icon">⚖️</span>
+              <span class="metric-name">TSB</span>
+              <button class="info-btn" data-metric="tsb">?</button>
+            </div>
+            <div class="metric-value" id="val-tsb">—</div>
+            <div class="metric-label">Forma</div>
+            <div class="metric-status" id="status-tsb"></div>
+          </div>
+
+          <div class="metric-card" data-metric="ramp">
+            <div class="metric-header">
+              <span class="metric-icon">📊</span>
+              <span class="metric-name">Rampa</span>
+              <button class="info-btn" data-metric="ramp">?</button>
+            </div>
+            <div class="metric-value" id="val-ramp">—</div>
+            <div class="metric-label">pts / semana</div>
+            <div class="metric-status" id="status-ramp"></div>
+          </div>
+
+        </div>
+
+        <!-- Wellness row -->
+        <div class="wellness-row">
+          <div class="wellness-card" data-metric="hrv">
+            <div class="wellness-icon">💓</div>
+            <div class="wellness-data">
+              <div class="wellness-value" id="val-hrv">—</div>
+              <div class="wellness-name">HRV</div>
+            </div>
+            <div class="wellness-delta" id="delta-hrv"></div>
+            <button class="info-btn" data-metric="hrv">?</button>
+          </div>
+          <div class="wellness-card" data-metric="rhr">
+            <div class="wellness-icon">❤️</div>
+            <div class="wellness-data">
+              <div class="wellness-value" id="val-rhr">—</div>
+              <div class="wellness-name">FC Repouso</div>
+            </div>
+            <div class="wellness-delta" id="delta-rhr"></div>
+            <button class="info-btn" data-metric="rhr">?</button>
+          </div>
+          <div class="wellness-card" data-metric="sleep">
+            <div class="wellness-icon">🌙</div>
+            <div class="wellness-data">
+              <div class="wellness-value" id="val-sleep">—</div>
+              <div class="wellness-name">Sono</div>
+            </div>
+            <div class="wellness-delta" id="delta-sleep"></div>
+            <button class="info-btn" data-metric="sleep">?</button>
+          </div>
+        </div>
+
+        <!-- Estimativas de prova -->
+        <div class="race-estimates">
+          <div class="section-title">
+            <span>Estimativas de Prova</span>
+            <button class="info-btn" data-metric="estimates">?</button>
+          </div>
+          <div class="race-grid">
+            <div class="race-card">
+              <div class="race-distance">5k</div>
+              <div class="race-time" id="est-5k">—</div>
+              <div class="race-pace" id="est-5k-pace">—/km</div>
+            </div>
+            <div class="race-card">
+              <div class="race-distance">10k</div>
+              <div class="race-time" id="est-10k">—</div>
+              <div class="race-pace" id="est-10k-pace">—/km</div>
+            </div>
+            <div class="race-card">
+              <div class="race-distance">21k</div>
+              <div class="race-time" id="est-21k">—</div>
+              <div class="race-pace" id="est-21k-pace">—/km</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alertas -->
+        <div id="alerts-container" class="alerts-container"></div>
+
+      </section>
+
+      <!-- ── SEÇÃO: ÚLTIMO TREINO ── -->
+      <section id="section-treino" class="content-section">
+
+        <div class="section-header">
+          <div class="section-title-lg" id="last-workout-name">—</div>
+          <div class="section-subtitle" id="last-workout-date">—</div>
+          <button class="btn-export" id="btn-export-workout">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M8 2v8M5 7l3 3 3-3M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Exportar Story
+          </button>
+        </div>
+
+        <!-- Stats principais do treino -->
+        <div class="workout-stats-grid">
+          <div class="workout-stat">
+            <div class="ws-value" id="wo-distance">—</div>
+            <div class="ws-label">Distância</div>
+          </div>
+          <div class="workout-stat">
+            <div class="ws-value" id="wo-time">—</div>
+            <div class="ws-label">Tempo</div>
+          </div>
+          <div class="workout-stat">
+            <div class="ws-value" id="wo-pace">—</div>
+            <div class="ws-label">Pace médio</div>
+          </div>
+          <div class="workout-stat">
+            <div class="ws-value" id="wo-hr">—</div>
+            <div class="ws-label">FC média</div>
+          </div>
+          <div class="workout-stat">
+            <div class="ws-value" id="wo-power">—</div>
+            <div class="ws-label">Potência</div>
+          </div>
+          <div class="workout-stat">
+            <div class="ws-value" id="wo-cadence">—</div>
+            <div class="ws-label">Cadência</div>
+          </div>
+        </div>
+
+        <!-- Métricas calculadas do treino -->
+        <div class="metrics-grid">
+          <div class="metric-card" data-metric="decoupling">
+            <div class="metric-header">
+              <span class="metric-icon">💔</span>
+              <span class="metric-name">Decoupling</span>
+              <button class="info-btn" data-metric="decoupling">?</button>
+            </div>
+            <div class="metric-value" id="val-decoupling">—</div>
+            <div class="metric-label">FC vs esforço</div>
+            <div class="metric-status" id="status-decoupling"></div>
+          </div>
+
+          <div class="metric-card" data-metric="if">
+            <div class="metric-header">
+              <span class="metric-icon">🎯</span>
+              <span class="metric-name">IF</span>
+              <button class="info-btn" data-metric="if">?</button>
+            </div>
+            <div class="metric-value" id="val-if">—</div>
+            <div class="metric-label">Intensidade relativa</div>
+            <div class="metric-status" id="status-if"></div>
+          </div>
+
+          <div class="metric-card" data-metric="aee">
+            <div class="metric-header">
+              <span class="metric-icon">❤️</span>
+              <span class="metric-name">AeE</span>
+              <button class="info-btn" data-metric="aee">?</button>
+            </div>
+            <div class="metric-value" id="val-aee">—</div>
+            <div class="metric-label">Eficiência cardíaca</div>
+            <div class="metric-trend" id="trend-aee"></div>
+          </div>
+
+          <div class="metric-card" data-metric="eff">
+            <div class="metric-header">
+              <span class="metric-icon">⚡</span>
+              <span class="metric-name">EFF</span>
+              <button class="info-btn" data-metric="eff">?</button>
+            </div>
+            <div class="metric-value" id="val-eff">—</div>
+            <div class="metric-label">Economia de corrida</div>
+            <div class="metric-trend" id="trend-eff"></div>
+          </div>
+        </div>
+
+        <!-- Tabela de splits -->
+        <div class="splits-section">
+          <div class="section-title">Splits por km</div>
+          <div class="splits-table-wrap">
+            <table class="splits-table">
+              <thead>
+                <tr>
+                  <th>km</th>
+                  <th>Pace</th>
+                  <th>FC</th>
+                  <th>Potência</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="splits-tbody">
+                <tr><td colspan="5" class="empty-state">Sem dados</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Zonas do treino -->
+        <div class="zones-section">
+          <div class="section-title">
+            <span>Distribuição de Zonas</span>
+            <button class="info-btn" data-metric="zones">?</button>
+          </div>
+          <div class="zones-chart-wrap">
+            <canvas id="chart-zones-workout"></canvas>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ── SEÇÃO: EVOLUÇÃO ── -->
+      <section id="section-evolucao" class="content-section">
+
+        <div class="chart-block">
+          <div class="chart-header">
+            <div class="chart-title">CTL / ATL / TSB — 90 dias</div>
+            <button class="info-btn" data-metric="ctl">?</button>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="chart-fitness"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-block">
+          <div class="chart-header">
+            <div class="chart-title">Eficiência Aeróbica (AeE) — 90 dias</div>
+            <button class="info-btn" data-metric="aee">?</button>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="chart-aee"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-block">
+          <div class="chart-header">
+            <div class="chart-title">Economia de Corrida (EFF) — 90 dias</div>
+            <button class="info-btn" data-metric="eff">?</button>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="chart-eff"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-block">
+          <div class="chart-header">
+            <div class="chart-title">HRV — 30 dias</div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="chart-hrv"></canvas>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ── SEÇÃO: SEMANA ── -->
+      <section id="section-semana" class="content-section">
+
+        <div class="week-header">
+          <div class="section-title-lg">Esta Semana</div>
+          <button class="btn-export" id="btn-export-week">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M8 2v8M5 7l3 3 3-3M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Exportar Story
+          </button>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-card" data-metric="monotony">
+            <div class="metric-header">
+              <span class="metric-icon">〰️</span>
+              <span class="metric-name">Monotonia</span>
+              <button class="info-btn" data-metric="monotony">?</button>
+            </div>
+            <div class="metric-value" id="val-monotony">—</div>
+            <div class="metric-label">Variação de carga</div>
+            <div class="metric-status" id="status-monotony"></div>
+          </div>
+
+          <div class="metric-card" data-metric="strain">
+            <div class="metric-header">
+              <span class="metric-icon">⚠️</span>
+              <span class="metric-name">Strain</span>
+              <button class="info-btn" data-metric="strain">?</button>
+            </div>
+            <div class="metric-value" id="val-strain">—</div>
+            <div class="metric-label">Carga total</div>
+            <div class="metric-status" id="status-strain"></div>
+          </div>
+
+          <div class="metric-card" data-metric="consistency">
+            <div class="metric-header">
+              <span class="metric-icon">📅</span>
+              <span class="metric-name">Consistência</span>
+              <button class="info-btn" data-metric="consistency">?</button>
+            </div>
+            <div class="metric-value" id="val-consistency">—</div>
+            <div class="metric-label">Últimas 12 semanas</div>
+          </div>
+
+          <div class="metric-card" data-metric="adherence">
+            <div class="metric-header">
+              <span class="metric-icon">✅</span>
+              <span class="metric-name">Aderência</span>
+              <button class="info-btn" data-metric="adherence">?</button>
+            </div>
+            <div class="metric-value" id="val-adherence">—</div>
+            <div class="metric-label">Ao plano</div>
+          </div>
+        </div>
+
+        <div class="chart-block">
+          <div class="chart-header">
+            <div class="chart-title">Distribuição de Zonas — Semana</div>
+            <button class="info-btn" data-metric="zones">?</button>
+          </div>
+          <div class="chart-wrap chart-wrap--small">
+            <canvas id="chart-zones-week"></canvas>
+          </div>
+        </div>
+
+        <!-- Lista de treinos da semana -->
+        <div class="week-workouts">
+          <div class="section-title">Treinos da semana</div>
+          <div id="week-workouts-list" class="workouts-list"></div>
+        </div>
+
+      </section>
+
+      <!-- ── SEÇÃO: PRs ── -->
+      <section id="section-prs" class="content-section">
+
+        <div class="section-header">
+          <div class="section-title-lg">Recordes Pessoais</div>
+          <button class="info-btn" data-metric="prs">?</button>
+        </div>
+
+        <div class="prs-grid">
+          <div class="pr-card" id="pr-1k">
+            <div class="pr-distance">1 km</div>
+            <div class="pr-pace" id="pr-pace-1k">—</div>
+            <div class="pr-date" id="pr-date-1k">—</div>
+            <button class="btn-export btn-export--small" data-pr="1k">Exportar</button>
+          </div>
+          <div class="pr-card" id="pr-3k">
+            <div class="pr-distance">3 km</div>
+            <div class="pr-pace" id="pr-pace-3k">—</div>
+            <div class="pr-date" id="pr-date-3k">—</div>
+            <button class="btn-export btn-export--small" data-pr="3k">Exportar</button>
+          </div>
+          <div class="pr-card" id="pr-5k">
+            <div class="pr-distance">5 km</div>
+            <div class="pr-pace" id="pr-pace-5k">—</div>
+            <div class="pr-date" id="pr-date-5k">—</div>
+            <button class="btn-export btn-export--small" data-pr="5k">Exportar</button>
+          </div>
+          <div class="pr-card" id="pr-10k">
+            <div class="pr-distance">10 km</div>
+            <div class="pr-pace" id="pr-pace-10k">—</div>
+            <div class="pr-date" id="pr-date-10k">—</div>
+            <button class="btn-export btn-export--small" data-pr="10k">Exportar</button>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       MODAL EDUCATIVO
+  ═══════════════════════════════════════════ -->
+  <div id="modal-info" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-box">
+      <button class="modal-close" id="modal-close">✕</button>
+      <div class="modal-icon" id="modal-icon"></div>
+      <div class="modal-metric-name" id="modal-metric-name"></div>
+      <div class="modal-value-display" id="modal-value-display"></div>
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/intervals.js"></script>
+  <script src="js/metrics.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/cards.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
